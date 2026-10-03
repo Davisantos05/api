@@ -18,7 +18,7 @@ def policy() -> AgentPolicy:
         agent_id=uuid4(),
         company_id=uuid4(),
         active=True,
-        allowed_operations={"purchase"},
+        allowed_operations=frozenset({"purchase"}),
         automatic_limit_cents=50_000,
         maximum_limit_cents=200_000,
     )
@@ -43,6 +43,16 @@ def test_authorizes_allowed_operation_within_automatic_limit(
     assert decision.company_id == policy.company_id
 
 
+@pytest.mark.parametrize("amount_cents", [0, 50_000])
+def test_authorizes_zero_and_exact_automatic_limit(
+    policy: AgentPolicy, amount_cents: int
+) -> None:
+    decision = evaluate_operation(policy, request(amount_cents=amount_cents))
+
+    assert decision.outcome is DecisionOutcome.AUTHORIZED
+    assert decision.reason is DecisionReason.WITHIN_AUTOMATIC_LIMIT
+
+
 def test_blocks_operation_not_present_in_server_policy(policy: AgentPolicy) -> None:
     decision = evaluate_operation(policy, request(operation="delete_financial_record"))
 
@@ -50,11 +60,18 @@ def test_blocks_operation_not_present_in_server_policy(policy: AgentPolicy) -> N
     assert decision.reason is DecisionReason.OPERATION_NOT_ALLOWED
 
 
-@pytest.mark.parametrize("amount_cents", [50_001, 100_000, 200_000])
+@pytest.mark.parametrize("amount_cents", [50_001, 100_000])
 def test_requires_human_approval_above_automatic_limit(
     policy: AgentPolicy, amount_cents: int
 ) -> None:
     decision = evaluate_operation(policy, request(amount_cents=amount_cents))
+
+    assert decision.outcome is DecisionOutcome.PENDING_APPROVAL
+    assert decision.reason is DecisionReason.HUMAN_APPROVAL_REQUIRED
+
+
+def test_exact_maximum_limit_requires_human_approval(policy: AgentPolicy) -> None:
+    decision = evaluate_operation(policy, request(amount_cents=200_000))
 
     assert decision.outcome is DecisionOutcome.PENDING_APPROVAL
     assert decision.reason is DecisionReason.HUMAN_APPROVAL_REQUIRED
@@ -86,7 +103,7 @@ def test_rejects_invalid_policy_limit_order() -> None:
             agent_id=uuid4(),
             company_id=uuid4(),
             active=True,
-            allowed_operations={"purchase"},
+            allowed_operations=frozenset({"purchase"}),
             automatic_limit_cents=201,
             maximum_limit_cents=200,
         )

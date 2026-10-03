@@ -1,17 +1,17 @@
 # NEXUS
 
-O NEXUS será uma camada de controle para operações solicitadas por agentes de IA. O projeto está sendo construído incrementalmente; **a Etapa 1 não é uma API financeira nem executa pagamentos reais**.
+O NEXUS será uma camada de controle para operações solicitadas por agentes de IA. O projeto está sendo construído incrementalmente; **a API atual apenas simula decisões e não executa pagamentos reais**.
 
-## Estado atual: Etapa 1
+## Estado atual: Etapa 2 — NEXUS 0.2
 
-Esta entrega contém um motor de autorização puro, sem interface, API ou banco de dados. Ele recebe uma política confiável do agente e uma solicitação validada e devolve uma decisão explicável:
+Esta entrega adiciona uma API FastAPI ao motor de autorização puro, ainda sem interface ou banco de dados. Ela recebe uma operação simulada, identifica provisoriamente o agente por um token local e devolve uma decisão explicável:
 
 - operação não permitida ou agente inativo: `blocked`;
 - valor até o limite automático (inclusive): `authorized`;
 - valor entre o limite automático e o máximo (inclusive): `pending_approval`;
 - valor acima do máximo: `blocked`.
 
-Valores monetários são inteiros em centavos. A política é uma entrada interna do motor: quando a API for criada, ela será carregada pelo servidor, nunca aceita do agente.
+Valores monetários são inteiros em centavos. A política fica no servidor e nunca é aceita no corpo enviado pelo agente. A API não executa a operação autorizada e não realiza pagamentos.
 
 ## Arquitetura proposta
 
@@ -28,7 +28,7 @@ tests/               # testes automatizados
 docs/                # decisões, endpoints e segurança
 ```
 
-A dependência aponta das bordas para o domínio. Assim, a regra de autorização pode ser testada sem FastAPI ou SQLAlchemy e continuará igual ao trocar SQLite por PostgreSQL. A futura API será responsável por autenticar a credencial do agente, buscar a política e o `company_id` no banco e só então chamar o motor.
+A dependência aponta das bordas para o domínio. Assim, a regra de autorização pode ser testada sem FastAPI ou SQLAlchemy e continuará igual ao trocar SQLite por PostgreSQL. Nesta etapa, a API identifica o agente e seleciona uma política em memória; futuramente, buscará a política e o `company_id` no banco antes de chamar o mesmo motor.
 
 ## Instalação no Windows (terminal do VS Code)
 
@@ -49,6 +49,35 @@ Se o PowerShell impedir a ativação, execute `Set-ExecutionPolicy -Scope Proces
 ```powershell
 pytest
 ```
+
+## Iniciar a API no Windows
+
+Com o ambiente virtual ativo, configure um token local de no mínimo 32 caracteres e inicie o Uvicorn:
+
+```powershell
+$env:NEXUS_DEV_AGENT_TOKEN = "troque-por-um-token-local-longo-e-aleatorio"
+uvicorn nexus.api.app:app --reload
+```
+
+A API ficará disponível em `http://127.0.0.1:8000`. A variável é definida somente na sessão atual do PowerShell. O arquivo `.env.example` serve como referência e não é carregado automaticamente.
+
+### Swagger
+
+1. Abra `http://127.0.0.1:8000/docs` no navegador.
+2. Clique em **Authorize** e informe o valor de `NEXUS_DEV_AGENT_TOKEN`.
+3. Expanda `POST /api/v1/operations`, clique em **Try it out** e use, por exemplo:
+
+```json
+{
+  "request_id": "01950000-0000-7000-8000-000000000099",
+  "operation": "purchase",
+  "amount_cents": 30000
+}
+```
+
+4. Clique em **Execute** para consultar a decisão simulada. O esquema OpenAPI também está disponível em `http://127.0.0.1:8000/openapi.json`.
+
+O agente provisório permite somente `purchase`, autoriza automaticamente até 50.000 centavos, exige aprovação até 200.000 centavos e bloqueia valores maiores. Essa configuração existe no servidor; campos adicionais, incluindo limites ou empresa, são rejeitados.
 
 ## Exemplo do motor
 
@@ -74,7 +103,7 @@ print(decision.outcome)  # authorized
 ## Plano incremental
 
 1. **Concluída:** arquitetura, ambiente e motor inicial.
-2. API FastAPI e testes das políticas via HTTP.
+2. **Concluída:** API FastAPI e testes das políticas via HTTP.
 3. SQLite/SQLAlchemy, empresas, usuários e agentes.
 4. Autenticação separada, autorização administrativa e isolamento multiempresa.
 5. Aprovação humana idempotente e trilha de auditoria.
