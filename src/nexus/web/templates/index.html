@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NEXUS Control Center</title>
+  <link rel="stylesheet" href="/static/css/nexus.css">
+  <script type="module" src="/static/js/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="Navegação principal">
+      <a class="sidebar-brand" href="#dashboard" aria-label="NEXUS Control Center">
+        <span class="brand-mark small" aria-hidden="true">N</span>
+        <span><strong>NEXUS</strong><small>CONTROL CENTER</small></span>
+      </a>
+      <nav id="navigation"></nav>
+      <div class="sidebar-footer">
+        <span class="system-dot" aria-hidden="true"></span>
+        <span><strong>Sistema operacional</strong><small>Operações simuladas</small></span>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <button id="menu-toggle" class="icon-button menu-button" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <div class="tenant-context">
+          <span class="eyebrow">AMBIENTE</span>
+          <strong id="company-name">Carregando…</strong>
+        </div>
+        <div class="user-menu">
+          <span class="avatar" id="user-initial" aria-hidden="true">–</span>
+          <span class="user-copy"><strong id="user-name">–</strong><small id="user-role">–</small></span>
+          <button id="logout-button" class="button ghost" type="button">Sair</button>
+        </div>
+      </header>
+      <main id="main-content" tabindex="-1">
+        <div class="page-loading" role="status">Carregando Control Center…</div>
+      </main>
+    </div>
+  </div>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <dialog id="modal" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <header><div><p class="eyebrow">NEXUS</p><h2 id="modal-title">Detalhes</h2></div><button class="icon-button" value="cancel" aria-label="Fechar">×</button></header>
+      <div id="modal-content"></div>
+    </div>
+  </dialog>
+</body>
+</html>
