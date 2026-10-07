@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NEXUS Control Center</title>
+  <link rel="icon" type="image/png" href="/static/assets/nexus-symbol-black.png">
+  <link rel="stylesheet" href="/static/css/nexus.css">
+  <script type="module" src="/static/js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Ir para o conteúdo</a>
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="Navegação principal">
+      <a class="sidebar-brand" href="#dashboard" aria-label="NEXUS Control Center">
+        <img class="sidebar-symbol" src="/static/assets/nexus-symbol-white.png" alt="NEXUS">
+        <span class="sidebar-product">CONTROL CENTER</span>
+      </a>
+      <nav id="navigation" aria-label="Páginas"></nav>
+      <div class="sidebar-footer">
+        <span class="system-dot" aria-hidden="true"></span>
+        <span><strong>Sistema operacional</strong><small>Operações simuladas</small></span>
+      </div>
+    </aside>
+    <button id="sidebar-backdrop" class="sidebar-backdrop" aria-label="Fechar navegação" type="button" hidden></button>
+    <div class="workspace">
+      <header class="topbar">
+        <button id="menu-toggle" class="icon-button menu-button" type="button" aria-label="Abrir navegação" aria-controls="sidebar" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="tenant-context"><span class="eyebrow">AMBIENTE</span><strong id="company-name">Carregando…</strong></div>
+        <div class="user-menu">
+          <span class="avatar" id="user-initial" aria-hidden="true">–</span>
+          <span class="user-copy"><strong id="user-name">–</strong><small id="user-role">–</small></span>
+          <button id="logout-button" class="button ghost" type="button">Sair</button>
+        </div>
+      </header>
+      <main id="main-content" tabindex="-1"><div class="page-loading" role="status">Carregando Control Center…</div></main>
+    </div>
+  </div>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <dialog id="modal" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <header>
+        <div><p class="eyebrow">NEXUS</p><h2 id="modal-title">Detalhes</h2></div>
+        <button class="icon-button" type="button" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+        </button>
+      </header>
+      <div id="modal-content"></div>
+    </div>
+  </dialog>
+</body>
+</html>
