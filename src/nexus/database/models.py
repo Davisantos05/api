@@ -7,13 +7,13 @@ from enum import StrEnum
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
+    JSON,
     BigInteger,
     Boolean,
     CheckConstraint,
     DateTime,
     Enum,
     ForeignKey,
-    JSON,
     LargeBinary,
     String,
     Text,
@@ -268,6 +268,7 @@ class ApprovalDecision(Base):
     operation_request: Mapped[OperationRequestRecord] = relationship(
         back_populates="approval_decision"
     )
+    decided_by_user: Mapped[User] = relationship()
 
 
 class AuditEvent(Base):

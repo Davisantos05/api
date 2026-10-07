@@ -6,6 +6,7 @@ const alert = document.querySelector("#login-alert");
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (button.disabled) return;
   button.disabled = true; button.textContent = "Verificando…";
   alert.classList.add("hidden");
   try {
@@ -22,6 +23,6 @@ form.addEventListener("submit", async (event) => {
       : "Não foi possível entrar agora. Tente novamente.";
     alert.classList.remove("hidden");
   } finally {
-    button.disabled = false; button.textContent = "Entrar no Control Center";
+    button.disabled = false; button.textContent = "Entrar →";
   }
 });

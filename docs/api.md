@@ -77,3 +77,14 @@ Os detalhes de aprovação incluem `policy_snapshot`, com a versão do formato, 
 ## Limite funcional
 
 Nenhum endpoint executa a ação solicitada ou movimenta dinheiro. Uma aprovação somente registra uma autorização simulada; integrações e execução externa permanecem fora do produto atual.
+
+### Atenção operacional no Control Center 0.6
+
+`GET /api/v1/dashboard/attention` requer sessão humana e `VIEW_OPERATIONS`.
+Retorna operações `pending_approval` da empresa autenticada, sem decisão humana,
+com o `policy_snapshot` histórico. O parâmetro `limit` aceita 1–20 (padrão 5).
+Não concede permissão de aprovação ao viewer.
+
+No resumo, `pending_approval` exclui operações já aprovadas ou rejeitadas. A
+operação continua preservando seu resultado original para auditoria. Os detalhes
+de uma decisão incluem `decided_by_user_name` além do identificador do responsável.

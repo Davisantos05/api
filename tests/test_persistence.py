@@ -278,12 +278,11 @@ def test_agents_in_different_companies_can_reuse_request_id(
 
 
 def test_unknown_agent_is_rejected(sessions: sessionmaker[Session]) -> None:
-    with sessions() as session:
-        with pytest.raises(UnknownAgentError):
-            PersistentAuthorizationService(session).evaluate(
-                token="unknown-token-with-more-than-32-characters",
-                request=operation(100),
-            )
+    with sessions() as session, pytest.raises(UnknownAgentError):
+        PersistentAuthorizationService(session).evaluate(
+            token="unknown-token-with-more-than-32-characters",
+            request=operation(100),
+        )
 
 
 def test_inactive_agent_is_blocked_and_persisted(

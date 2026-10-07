@@ -4,34 +4,40 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Entrar — NEXUS Control Center</title>
+  <link rel="icon" type="image/png" href="/static/assets/nexus-symbol-black.png">
   <link rel="stylesheet" href="/static/css/nexus.css">
   <script type="module" src="/static/js/login.js"></script>
 </head>
 <body class="login-page">
   <main class="login-shell">
     <section class="login-brand" aria-labelledby="brand-title">
-      <div class="brand-mark" aria-hidden="true">N</div>
-      <p class="eyebrow">OPERATIONAL GOVERNANCE</p>
-      <h1 id="brand-title">NEXUS<br>CONTROL CENTER</h1>
-      <p>Autorize, supervisione e audite operações solicitadas por agentes de IA em um único ambiente.</p>
-      <div class="trust-line"><span></span> Ambiente de controle — operações simuladas</div>
+      <img class="brand-logo" src="/static/assets/nexus-logo-white.png" alt="NEXUS">
+      <div class="login-statement">
+        <p class="eyebrow">NEXUS CONTROL CENTER</p>
+        <h1 id="brand-title">Controle. Governança.<br>Decisões com confiança.</h1>
+        <p>Um ambiente seguro e centralizado para gerenciar operações, aprovações e agentes da sua empresa.</p>
+      </div>
+      <footer class="trust-line">
+        <strong>Plataforma segura e confiável</strong>
+        <span>Dados protegidos e acesso restrito</span>
+      </footer>
     </section>
     <section class="login-panel" aria-labelledby="login-title">
       <div class="login-card">
-        <p class="eyebrow">ACESSO SEGURO</p>
-        <h2 id="login-title">Entre na sua empresa</h2>
-        <p class="muted">Use suas credenciais administrativas do NEXUS.</p>
+        <img class="brand-logo" src="/static/assets/nexus-logo-black.png" alt="NEXUS">
+        <h2 id="login-title">Acesse sua conta</h2>
+        <p class="muted">Acesse o ambiente da sua empresa.</p>
         <div id="login-alert" class="alert hidden" role="alert" aria-live="polite"></div>
         <form id="login-form">
           <label for="company-slug">Empresa</label>
-          <input id="company-slug" name="company_slug" autocomplete="organization" required maxlength="100" placeholder="nexus-demo">
+          <input id="company-slug" name="company_slug" autocomplete="organization" required minlength="2" maxlength="100" placeholder="nexus-demo">
           <label for="email">E-mail</label>
           <input id="email" name="email" type="email" autocomplete="username" required placeholder="admin@empresa.com">
           <label for="password">Senha</label>
           <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="1024">
-          <button id="login-button" class="button primary wide" type="submit">Entrar no Control Center</button>
+          <button id="login-button" class="button primary wide" type="submit">Entrar →</button>
         </form>
-        <p class="security-note">Sua sessão é mantida em cookie HttpOnly. O token não é disponibilizado ao JavaScript.</p>
+        <p class="security-note">Acesso restrito a usuários autorizados da sua empresa.</p>
       </div>
     </section>
   </main>

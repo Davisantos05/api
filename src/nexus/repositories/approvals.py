@@ -20,7 +20,9 @@ class ApprovalRepository:
     def _query() -> Select[OperationRequestRecord]:
         return select(OperationRequestRecord).options(
             joinedload(OperationRequestRecord.agent),
-            joinedload(OperationRequestRecord.approval_decision),
+            joinedload(OperationRequestRecord.approval_decision).joinedload(
+                ApprovalDecision.decided_by_user
+            ),
         )
 
     def get(

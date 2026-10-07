@@ -131,6 +131,7 @@ class ApprovalDecisionView(BaseModel):
     decision: ApprovalChoice
     reason: str | None
     decided_by_user_id: UUID
+    decided_by_user_name: str | None = None
     created_at: datetime
 
 

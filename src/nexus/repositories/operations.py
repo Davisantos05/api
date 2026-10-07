@@ -1,8 +1,7 @@
 """Tenant-scoped operation request persistence."""
 
-from uuid import UUID
-
 from datetime import datetime
+from uuid import UUID
 
 from sqlalchemy import Select, func, select
 from sqlalchemy.orm import Session, joinedload
@@ -48,7 +47,9 @@ class OperationRepository:
     def _detailed_query() -> Select[OperationRequestRecord]:
         return select(OperationRequestRecord).options(
             joinedload(OperationRequestRecord.agent),
-            joinedload(OperationRequestRecord.approval_decision),
+            joinedload(OperationRequestRecord.approval_decision).joinedload(
+                ApprovalDecision.decided_by_user
+            ),
         )
 
     def get_by_id(
@@ -70,6 +71,7 @@ class OperationRepository:
         created_from: datetime | None = None,
         created_to: datetime | None = None,
         limit: int = 100,
+        undecided_only: bool = False,
     ) -> list[OperationRequestRecord]:
         query = self._detailed_query().where(
             OperationRequestRecord.company_id == company_id
@@ -78,6 +80,8 @@ class OperationRepository:
             query = query.where(OperationRequestRecord.agent_id == agent_id)
         if outcome is not None:
             query = query.where(OperationRequestRecord.outcome == outcome)
+        if undecided_only:
+            query = query.where(~OperationRequestRecord.approval_decision.has())
         if created_from is not None:
             query = query.where(OperationRequestRecord.created_at >= created_from)
         if created_to is not None:
@@ -112,7 +116,16 @@ class OperationRepository:
             or 0,
             "operations_total": sum(operation_counts.values()),
             "authorized": operation_counts.get("authorized", 0),
-            "pending_approval": operation_counts.get("pending_approval", 0),
+            "pending_approval": self.session.scalar(
+                select(func.count())
+                .select_from(OperationRequestRecord)
+                .where(
+                    OperationRequestRecord.company_id == company_id,
+                    OperationRequestRecord.outcome == "pending_approval",
+                    ~OperationRequestRecord.approval_decision.has(),
+                )
+            )
+            or 0,
             "blocked": operation_counts.get("blocked", 0),
             "human_approved": approval_counts.get(ApprovalChoice.APPROVED, 0),
             "human_rejected": approval_counts.get(ApprovalChoice.REJECTED, 0),

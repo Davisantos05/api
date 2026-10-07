@@ -1,8 +1,8 @@
 """FastAPI application factory for NEXUS."""
 
+import os
 from collections.abc import Callable
 from datetime import datetime
-import os
 from pathlib import Path
 from typing import Annotated
 from uuid import UUID
@@ -16,8 +16,6 @@ from sqlalchemy.orm import Session, sessionmaker
 from starlette.middleware.base import RequestResponseEndpoint
 
 from nexus.api.schemas import (
-    ErrorDetail,
-    ErrorResponse,
     AgentCreateRequest,
     AgentView,
     ApprovalDecisionRequest,
@@ -26,10 +24,12 @@ from nexus.api.schemas import (
     AuditEventView,
     BrowserLoginResponse,
     ChangePasswordRequest,
-    CredentialCreateRequest,
     CredentialCreatedResponse,
+    CredentialCreateRequest,
     CredentialView,
     DashboardSummary,
+    ErrorDetail,
+    ErrorResponse,
     LoginRequest,
     LoginResponse,
     OperationResponse,
@@ -46,30 +46,30 @@ from nexus.database.models import (
     User,
     UserSession,
 )
+from nexus.database.session import get_session_factory
 from nexus.domain.authorization import (
     DecisionOutcome,
     DecisionReason,
     OperationRequest,
 )
-from nexus.database.session import get_session_factory
 from nexus.repositories.agents import AgentRepository
 from nexus.repositories.approvals import ApprovalRepository
 from nexus.repositories.audit import AuditAction, AuditRepository
 from nexus.repositories.identity import AgentCredentialRepository, UserSessionRepository
 from nexus.repositories.operations import OperationRepository
 from nexus.security.rbac import Capability, has_capability
-from nexus.services.authorization import (
-    IdempotencyConflictError,
-    PersistentAuthorizationService,
-    UnknownAgentError,
-)
-from nexus.services.identity import HumanAuthenticationService, InvalidCredentialsError
 from nexus.services.approvals import (
     ApprovalConflictError,
     ApprovalNotFoundError,
     ApprovalService,
     OperationNotApprovableError,
 )
+from nexus.services.authorization import (
+    IdempotencyConflictError,
+    PersistentAuthorizationService,
+    UnknownAgentError,
+)
+from nexus.services.identity import HumanAuthenticationService, InvalidCredentialsError
 
 agent_token_header = APIKeyHeader(
     name="X-Nexus-Agent-Token",
@@ -339,6 +339,7 @@ def create_app(
                     decision=approval.decision,
                     reason=approval.reason,
                     decided_by_user_id=approval.decided_by_user_id,
+                    decided_by_user_name=approval.decided_by_user.name,
                     created_at=approval.created_at,
                 )
                 if approval is not None
@@ -725,6 +726,24 @@ def create_app(
                 OperationRepository(session).dashboard_summary(record.company_id)
             )
 
+    @app.get(
+        "/api/v1/dashboard/attention",
+        response_model=list[OperationView],
+        tags=["Dashboard"],
+    )
+    def dashboard_attention(
+        record: Annotated[UserSession, Depends(require(Capability.VIEW_OPERATIONS))],
+        limit: Annotated[int, Query(ge=1, le=20)] = 5,
+    ) -> list[OperationView]:
+        with database_factory()() as session:
+            rows = OperationRepository(session).list_detailed(
+                company_id=record.company_id,
+                outcome="pending_approval",
+                undecided_only=True,
+                limit=limit,
+            )
+            return [operation_view(row) for row in rows]
+
     @app.get("/api/v1/approvals", response_model=list[ApprovalView], tags=["Approvals"])
     def list_approvals(
         record: Annotated[UserSession, Depends(require(Capability.VIEW_APPROVALS))],
@@ -808,6 +827,7 @@ def create_app(
                 decision=decision.decision,
                 reason=decision.reason,
                 decided_by_user_id=decision.decided_by_user_id,
+                decided_by_user_name=record.user.name,
                 created_at=decision.created_at,
             )
 

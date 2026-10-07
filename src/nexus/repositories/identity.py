@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session, joinedload
 
 from nexus.database.models import Agent, AgentCredential, Company, User, UserSession
 from nexus.security.tokens import (
-    fingerprint_agent_token,
     AGENT_TOKEN_PREFIX_LENGTH,
+    fingerprint_agent_token,
     generate_agent_token,
     generate_session_token,
 )

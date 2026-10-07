@@ -12,9 +12,9 @@ from nexus.domain.authorization import (
     evaluate_operation,
 )
 from nexus.repositories.agents import AgentRepository
+from nexus.repositories.audit import AuditAction, AuditRepository
 from nexus.repositories.identity import AgentCredentialRepository
 from nexus.repositories.operations import OperationRepository
-from nexus.repositories.audit import AuditAction, AuditRepository
 
 
 class UnknownAgentError(Exception):

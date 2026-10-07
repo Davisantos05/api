@@ -38,7 +38,8 @@ def sanitize_metadata(metadata: dict[str, object] | None) -> dict[str, object]:
         if any(fragment in normalized for fragment in FORBIDDEN_METADATA_FRAGMENTS):
             raise ValueError(f"sensitive audit metadata key is forbidden: {key}")
         if not isinstance(value, (str, int, float, bool, type(None))):
-            raise ValueError(f"audit metadata value must be scalar: {key}")
+            # Unsupported values keep the existing metadata validation contract.
+            raise ValueError(f"audit metadata value must be scalar: {key}")  # noqa: TRY004
         clean[key] = value
     return clean
 

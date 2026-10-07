@@ -13,12 +13,12 @@ from sqlalchemy.orm import Session, sessionmaker
 from nexus.api.app import create_app
 from nexus.database.base import Base
 from nexus.database.models import (
+    Agent,
+    AgentPermission,
     ApprovalChoice,
     ApprovalDecision,
     AuditActorType,
     AuditEvent,
-    Agent,
-    AgentPermission,
     Company,
     OperationRequestRecord,
     User,
@@ -26,9 +26,9 @@ from nexus.database.models import (
 )
 from nexus.database.session import create_database_engine, create_session_factory
 from nexus.repositories.agents import AgentRepository
+from nexus.repositories.audit import AuditAction, AuditRepository, sanitize_metadata
 from nexus.repositories.companies import CompanyRepository
 from nexus.repositories.identity import AgentCredentialRepository
-from nexus.repositories.audit import AuditAction, AuditRepository, sanitize_metadata
 from nexus.repositories.users import UserRepository
 from nexus.security.passwords import hash_password
 from nexus.services.approvals import ApprovalConflictError, ApprovalService
@@ -609,5 +609,7 @@ def test_audit_endpoint_is_tenant_scoped_and_rbac_protected(
     )
     assert client.get("/api/v1/audit-events", headers=bearer(viewer)).status_code == 403
     other_events = client.get("/api/v1/audit-events", headers=bearer(other)).json()
-    other_admin_id = str(getattr(approval_data["other_admin"], "id"))
+    other_admin = approval_data["other_admin"]
+    assert isinstance(other_admin, User)
+    other_admin_id = str(other_admin.id)
     assert all(event["actor_user_id"] == other_admin_id for event in other_events)

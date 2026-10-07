@@ -27,7 +27,10 @@ nexus-seed-dashboard = "nexus.cli.seed_dashboard:main"
 dev = [
     "httpx>=0.27,<1",
     "pytest>=8.2,<9",
+    "ruff>=0.9,<1",
+    "pyright>=1.1,<2",
 ]
+browser = ["playwright>=1.48,<2"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
@@ -37,4 +40,4 @@ testpaths = ["tests"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-nexus = ["web/templates/*.html", "web/static/css/*.css", "web/static/js/*.js"]
+nexus = ["web/templates/*.html", "web/static/css/*.css", "web/static/js/*.js", "web/static/assets/*.png"]
