@@ -81,7 +81,7 @@ Abra `http://127.0.0.1:8000/` para acessar o Control Center. O navegador usa um 
 
 ### Dataset visual completo
 
-Para criar explicitamente uma empresa, administrador, agente e exemplos autorizados, bloqueados, pendentes, aprovados e rejeitados em um banco vazio:
+Para criar explicitamente uma empresa, administrador, dois agentes e exemplos autorizados, bloqueados, pendentes, aprovados e rejeitados em um banco vazio:
 
 ```powershell
 $env:NEXUS_DEMO_ADMIN_PASSWORD = "escolha-uma-senha-forte-123A"
@@ -89,7 +89,19 @@ nexus-seed-dashboard
 Remove-Item Env:NEXUS_DEMO_ADMIN_PASSWORD
 ```
 
-Entre com empresa `nexus-demo`, e-mail `admin@nexus.demo` e a senha escolhida. A API key do agente é exibida uma única vez no terminal. Esse comando é somente para desenvolvimento e nunca roda no startup.
+Entre com empresa `nexus-demo`, e-mail `admin@nexus.demo` e a senha escolhida. O administrador se chama `Administrador Demo`. Cada agente recebe uma API key própria, exibida uma única vez no terminal e armazenada somente como hash/prefixo no banco. Esse comando é somente para desenvolvimento e nunca roda no startup.
+
+| Agente | Operação simulada permitida | Limite automático | Limite máximo |
+|---|---|---:|---:|
+| Purchasing Agent | `purchase` | R$ 500,00 | R$ 2.000,00 |
+| Finance Agent | `pix` | R$ 100,00 | R$ 1.000,00 |
+
+O dataset contém dez operações, incluindo uma pendência sem decisão por agente.
+O dashboard mostra dois agentes ativos, duas operações autorizadas, duas bloqueadas,
+duas aguardando decisão e quatro decisões humanas (duas aprovadas e duas rejeitadas).
+`pix` é apenas um nome de operação simulada: nenhum Pix, compra ou pagamento real
+é executado e nenhuma API externa é chamada. O comando recusa uma empresa
+`nexus-demo` já existente, sem alterar seus dados ou exibir as chaves novamente.
 
 ### Swagger
 

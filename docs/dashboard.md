@@ -51,6 +51,45 @@ O CSP é aplicado às páginas e assets do Control Center sem quebrar o Swagger.
 
 Nenhuma etapa executa pagamentos ou efeitos externos.
 
+### Demonstração com dois agentes
+
+Em um banco novo, aplique `alembic upgrade head` e execute explicitamente
+`nexus-seed-dashboard` com `NEXUS_DEMO_ADMIN_PASSWORD`. O seed cria `NEXUS Demo`
+(`nexus-demo`), `Administrador Demo` (`admin@nexus.demo`) e duas identidades:
+
+- Purchasing Agent: permite `purchase`, automático de 50.000 centavos e máximo
+  de 200.000 centavos.
+- Finance Agent: permite `pix`, automático de 10.000 centavos e máximo de
+  100.000 centavos. `pix` continua sendo somente uma operação simulada.
+
+As chaves são geradas separadamente e exibidas uma única vez com o nome do agente.
+O banco guarda somente hash/prefixo; o seed não é chamado no startup. Se a empresa
+já existe, o comando recusa a execução sem modificar o banco. Para avaliar o novo
+dataset, use um banco de demonstração novo, preservando bancos existentes.
+
+| Agente | Operação | Centavos | Resultado da política | Decisão humana |
+|---|---|---:|---|---|
+| Purchasing Agent | `purchase` | 30.000 | `authorized` | Não requerida |
+| Purchasing Agent | `purchase` | 100.000 | `pending_approval` | Aguardando decisão |
+| Purchasing Agent | `purchase` | 125.000 | `pending_approval` | `rejected` |
+| Purchasing Agent | `purchase` | 150.000 | `pending_approval` | `approved` |
+| Purchasing Agent | `purchase` | 300.000 | `blocked` | Não requerida |
+| Finance Agent | `pix` | 5.000 | `authorized` | Não requerida |
+| Finance Agent | `pix` | 50.000 | `pending_approval` | Aguardando decisão |
+| Finance Agent | `pix` | 70.000 | `pending_approval` | `approved` |
+| Finance Agent | `pix` | 80.000 | `pending_approval` | `rejected` |
+| Finance Agent | `pix` | 200.000 | `blocked` | Não requerida |
+
+As operações passam pelos serviços existentes de autorização persistente e
+aprovação; cada decisão humana usa o identificador exato da solicitação criada.
+O histórico guarda os limites e permissões da política aplicada e os eventos
+registram o agente solicitante e o administrador responsável pelas decisões.
+
+Os indicadores esperados no banco recém-criado são: 2 agentes ativos, 10 operações,
+2 autorizadas, 2 bloqueadas, 2 pendências reais, 2 decisões aprovadas e 2 rejeitadas.
+Na página Agentes, as credenciais e as últimas operações permanecem separadas por
+identidade. Nenhum número é fixado no frontend.
+
 ## NEXUS 0.6 — interface premium
 
 A interface usa preto/carvão, branco, off-white e cinzas neutros, com fontes do
